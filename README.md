@@ -12,10 +12,10 @@ A lightweight FastAPI microservice for resolving IP addresses into GeoIP and ASN
 
 ### Endpoints
 
-- `GET /api/v1/geoip/{ip}` - full GeoIP lookup
-- `GET /api/v1/geoip/asn/{ip}` - ASN lookup
-- `POST /api/v1/geoip/bulk` - bulk GeoIP lookup from a JSON array of IPs
-- `POST /api/v1/geoip/traceroute` - traceroute text lookup using `text/plain`
+- `GET /geoip/{ip}` - full GeoIP lookup
+- `GET /geoip/asn/{ip}` - ASN lookup
+- `POST /geoip/bulk` - bulk GeoIP lookup from a JSON array of IPs
+- `POST /geoip/traceroute` - traceroute text lookup using `text/plain`
 
 ## Local Setup
 
@@ -76,13 +76,13 @@ The compose file mounts `geoip_database/` into the containers so the database fi
 ### Single IP lookup
 
 ```bash
-curl http://localhost:8000/api/v1/geoip/8.8.8.8
+curl http://localhost:8000/geoip/8.8.8.8
 ```
 
 ### ASN lookup
 
 ```bash
-curl http://localhost:8000/api/v1/geoip/asn/8.8.8.8
+curl http://localhost:8000/geoip/asn/8.8.8.8
 ```
 
 ### Bulk lookup
@@ -90,7 +90,7 @@ curl http://localhost:8000/api/v1/geoip/asn/8.8.8.8
 Send a raw JSON array of IPs:
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/geoip/bulk \
+curl -X POST http://localhost:8000/geoip/bulk \
   -H "Content-Type: application/json" \
   -d '["8.8.8.8","1.1.1.1","9.9.9.9"]'
 ```
@@ -100,7 +100,7 @@ curl -X POST http://localhost:8000/api/v1/geoip/bulk \
 Send traceroute output as plain text:
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/geoip/traceroute \
+curl -X POST http://localhost:8000/geoip/traceroute \
   -H "Content-Type: text/plain" \
   --data-binary @traceroute.txt
 ```
