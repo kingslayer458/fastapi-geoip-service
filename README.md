@@ -1,0 +1,131 @@
+# GeoIP Lookup Microservice
+
+A lightweight FastAPI microservice for resolving IP addresses into GeoIP and ASN data using MaxMind GeoLite2 databases.
+
+The service exposes simple endpoints for single IP lookups, bulk lookups, and traceroute parsing. It is designed for fast internal use, diagnostics, and automation around IP intelligence.
+
+It uses GeoLite Country as a fallback when GeoLite City does not have a precise location record for an IP.
+
+## What It Does
+
+- Looks up GeoIP data for a single IP address
+- Returns ASN information for an IP address
+- Performs bulk GeoIP lookups for a list of IPs
+- Parses traceroute output, extracts IPs, and returns GeoIP results
+- Serves a health check and a root service description
+
+### Endpoints
+
+- `GET /api/v1/geoip/{ip}` - full GeoIP lookup
+- `GET /api/v1/geoip/asn/{ip}` - ASN lookup
+- `POST /api/v1/geoip/bulk` - bulk GeoIP lookup from a JSON array of IPs
+- `POST /api/v1/geoip/traceroute` - traceroute text lookup using `text/plain`
+
+## Project Structure
+
+- `app/main.py` - FastAPI application entrypoint
+- `app/controllers/` - API route handlers
+- `app/services/` - business logic
+- `app/repositories/` - MaxMind database access
+- `app/dto_schemas/` - request and response models
+- `app/utils/` - helper utilities, including traceroute parsing
+- `geoip_database/` - local MaxMind `.mmdb` files
+
+## Local Setup
+
+1. Create and activate a virtual environment.
+2. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Make sure the GeoLite2 databases exist in `geoip_database/`:
+
+- `GeoLite2-City.mmdb`
+- `GeoLite2-Country.mmdb`
+- `GeoLite2-ASN.mmdb`
+
+If you need to download them first, run:
+
+```bash
+docker compose run --rm geoipupdate-init
+```
+
+Note: the GeoLite databases are downloaded from `https://updates.maxmind.com`.
+
+4. Start the app from the `app` directory:
+
+```bash
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+## Docker Setup
+
+You can run the API and the MaxMind updater using Docker Compose.
+
+```bash
+docker compose up --build
+```
+
+The compose file mounts `geoip_database/` into the containers so the database files are available to the API.
+
+For local Python development, the one-time `geoipupdate-init` service is the easiest way to populate `geoip_database/` before you run `python -m uvicorn ...`.
+
+## MaxMind Update Configuration
+
+The `geoipupdate` service uses `maxmind.env`.
+
+Example values:
+
+```env
+GEOIPUPDATE_ACCOUNT_ID=your_account_id
+GEOIPUPDATE_LICENSE_KEY=your_license_key
+GEOIPUPDATE_EDITION_IDS=GeoLite2-Country GeoLite2-City GeoLite2-ASN
+GEOIPUPDATE_FREQUENCY=9
+```
+
+Copy `maxmind.env.example` to `maxmind.env` and fill in your credentials.
+
+## Example Requests
+
+### Single IP lookup
+
+```bash
+curl http://localhost:8000/api/v1/geoip/8.8.8.8
+```
+
+### ASN lookup
+
+```bash
+curl http://localhost:8000/api/v1/geoip/asn/8.8.8.8
+```
+
+### Bulk lookup
+
+Send a raw JSON array of IPs:
+
+```bash
+curl -X POST http://localhost:8000/api/v1/geoip/bulk \
+  -H "Content-Type: application/json" \
+  -d '["8.8.8.8","1.1.1.1","9.9.9.9"]'
+```
+
+### Traceroute lookup
+
+Send traceroute output as plain text:
+
+```bash
+curl -X POST http://localhost:8000/api/v1/geoip/traceroute \
+  -H "Content-Type: text/plain" \
+  --data-binary @traceroute.txt
+```
+
+Example traceroute content:
+
+```text
+traceroute to example.com
+1  192.168.1.1
+2  8.8.8.8
+3  1.1.1.1
+```

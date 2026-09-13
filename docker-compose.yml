@@ -1,0 +1,31 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./geoip_database:/app/geoip_database
+    depends_on:
+      geoipupdate-init:
+        condition: service_completed_successfully
+
+  geoipupdate-init:
+    image: ghcr.io/maxmind/geoipupdate
+    env_file:
+      - maxmind.env
+    environment:
+      GEOIPUPDATE_FREQUENCY: 0
+    volumes:
+      - ./geoip_database:/usr/share/GeoIP
+    command: ["geoipupdate"]
+
+  geoipupdate:
+    image: ghcr.io/maxmind/geoipupdate
+    env_file:
+      - maxmind.env
+    volumes:
+      - ./geoip_database:/usr/share/GeoIP
+    depends_on:
+      geoipupdate-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
