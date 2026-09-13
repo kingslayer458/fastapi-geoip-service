@@ -1,8 +1,6 @@
-# GeoIP Lookup Microservice
+# GeoIP Lookup Microservice using FastAPI
 
 A lightweight FastAPI microservice for resolving IP addresses into GeoIP and ASN data using MaxMind GeoLite2 databases.
-
-The service exposes simple endpoints for single IP lookups, bulk lookups, and traceroute parsing. It is designed for fast internal use, diagnostics, and automation around IP intelligence.
 
 ## What It Does
 
@@ -19,20 +17,9 @@ The service exposes simple endpoints for single IP lookups, bulk lookups, and tr
 - `POST /api/v1/geoip/bulk` - bulk GeoIP lookup from a JSON array of IPs
 - `POST /api/v1/geoip/traceroute` - traceroute text lookup using `text/plain`
 
-## Project Structure
-
-- `app/main.py` - FastAPI application entrypoint
-- `app/controllers/` - API route handlers
-- `app/services/` - business logic
-- `app/repositories/` - MaxMind database access
-- `app/dto_schemas/` - request and response models
-- `app/utils/` - helper utilities, including traceroute parsing
-- `geoip_database/` - local MaxMind `.mmdb` files
-
 ## Local Setup
 
-1. Create and activate a virtual environment.
-2. Install dependencies:
+ Install dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -59,7 +46,7 @@ Copy `maxmind.env.example` to `maxmind.env` and fill in your credentials.
 - `GeoLite2-Country.mmdb`
 - `GeoLite2-ASN.mmdb`
 
-If you need to download them first, run:
+If you need to download them first, run this command and it will populate the `geoip_database/` directory with the latest GeoLite2 databases:
 
 ```bash
 docker compose run --rm geoipupdate-init
@@ -82,8 +69,6 @@ docker compose up --build
 ```
 
 The compose file mounts `geoip_database/` into the containers so the database files are available to the API.
-
-For local Python development, the one-time `geoipupdate-init` service is the easiest way to populate `geoip_database/` before you run `python -m uvicorn ...`.
 
 
 ## Example Requests
