@@ -16,9 +16,6 @@ xy = GeoIPService(repository)
 xys = "192.168.1.1"
 findd = xy.get_geoip(xys)
 
-if findd.error:
-    print(findd.error.message)
-else:
-    print(findd)
+print(findd)
 
 repository.close()

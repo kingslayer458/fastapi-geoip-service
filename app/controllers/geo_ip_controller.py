@@ -1,16 +1,11 @@
 from fastapi import APIRouter, Body, HTTPException
-from app.dto_schemas.geoip_schemas import (
-    ASNResponse,
-    CountryResponse,
-    GeoIPResponse,
-)
 from app.services.geoip_service import GeoIPService
 from app.utils.traceroute_parser import extract_ips_from_traceroute
 
 def create_geoip_controller(geoip_service: GeoIPService) -> APIRouter:
     router = APIRouter(prefix="/geoip", tags=["GeoIP"])
 
-    @router.get("/{ip}", response_model=GeoIPResponse)
+    @router.get("/{ip}")
     def lookup_ip(ip: str):
         try:
             return geoip_service.get_geoip(ip)
@@ -19,7 +14,7 @@ def create_geoip_controller(geoip_service: GeoIPService) -> APIRouter:
         except LookupError as e:
             raise HTTPException(404, str(e))
 
-    @router.get("/asn/{ip}", response_model=ASNResponse)
+    @router.get("/asn/{ip}")
     def lookup_asn(ip: str):
         try:
             return geoip_service.get_asn(ip)
@@ -28,7 +23,7 @@ def create_geoip_controller(geoip_service: GeoIPService) -> APIRouter:
         except LookupError as e:
             raise HTTPException(404, str(e))
 
-    @router.get("/country/{ip}", response_model=CountryResponse)
+    @router.get("/country/{ip}")
     def lookup_country(ip: str):
         try:
             return geoip_service.get_country(ip)
@@ -37,7 +32,7 @@ def create_geoip_controller(geoip_service: GeoIPService) -> APIRouter:
         except LookupError as e:
             raise HTTPException(404, str(e))
 
-    @router.post("/bulk", response_model=list[GeoIPResponse])
+    @router.post("/bulk")
     def lookup_bulk(ips: list[str]):
         try:
             results = []
@@ -49,7 +44,7 @@ def create_geoip_controller(geoip_service: GeoIPService) -> APIRouter:
         except ValueError as e:
             raise HTTPException(400, str(e))
 
-    @router.post("/traceroute", response_model=list[GeoIPResponse])
+    @router.post("/traceroute")
     def lookup_traceroute(traceroute_result: str = Body(..., media_type="text/plain")):
         try:
             ips = extract_ips_from_traceroute(traceroute_result)
