@@ -1,6 +1,11 @@
 import ipaddress
 from app.repositories.geoip_repo import GeoIPRepository
-from app.dto_schemas.geoip_schemas import ASNResponse, CountryResponse, GeoIPResponse
+from app.dto_schemas.geoip_schemas import (
+    ASNResponse,
+    CountryResponse,
+    ErrorResponse,
+    GeoIPResponse,
+)
 
 
 class GeoIPService:
@@ -11,14 +16,24 @@ class GeoIPService:
     def validate_ip(self, ip: str):
 
         try:
-            ipaddress.ip_address(ip)
+            return ipaddress.ip_address(ip)
 
         except ValueError:
             raise ValueError(f"Invalid IP address: {ip}")
 
+    def reserved_ip_error(self, ip: str) -> ErrorResponse:
+        return ErrorResponse(
+            code="IP_ADDRESS_RESERVED",
+            message=f"The IP address '{ip}' is a reserved IP address",
+        )
+
     def get_asn(self, ip: str) -> ASNResponse:
 
-        self.validate_ip(ip)
+        ip_obj = self.validate_ip(ip)
+
+        if not ip_obj.is_global:
+            return ASNResponse(ip=ip, error=self.reserved_ip_error(ip))
+
         response = self.repository.get_asn(ip)
 
         if response is None:
@@ -38,7 +53,11 @@ class GeoIPService:
 
     def get_country(self, ip: str) -> CountryResponse:
 
-        self.validate_ip(ip)
+        ip_obj = self.validate_ip(ip)
+
+        if not ip_obj.is_global:
+            return CountryResponse(ip=ip, error=self.reserved_ip_error(ip))
+
         country = self.repository.get_country(ip)
 
         if country is None:
@@ -53,7 +72,11 @@ class GeoIPService:
 
     def get_geoip(self, ip: str) -> GeoIPResponse:
 
-        self.validate_ip(ip)
+        ip_obj = self.validate_ip(ip)
+
+        if not ip_obj.is_global:
+            return GeoIPResponse(ip=ip, error=self.reserved_ip_error(ip))
+
         city = self.repository.get_city(ip)
         country = self.repository.get_country(ip)
         asn = self.repository.get_asn(ip)

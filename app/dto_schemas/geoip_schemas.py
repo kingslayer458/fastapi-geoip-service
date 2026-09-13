@@ -2,6 +2,11 @@ from typing import Optional
 from pydantic import BaseModel
 
 
+class ErrorResponse(BaseModel):
+    code: str
+    message: str
+
+
 class CityResponse(BaseModel):
     ip: str
     country: Optional[str] = None
@@ -20,6 +25,7 @@ class CountryResponse(BaseModel):
     country: Optional[str] = None
     country_iso: Optional[str] = None
     continent: Optional[str] = None
+    error: Optional[ErrorResponse] = None
 
 
 class ASNResponse(BaseModel):
@@ -27,6 +33,7 @@ class ASNResponse(BaseModel):
     asn: Optional[int] = None
     organization: Optional[str] = None
     network: Optional[str] = None
+    error: Optional[ErrorResponse] = None
 
 
 class GeoIPResponse(BaseModel):
@@ -43,3 +50,4 @@ class GeoIPResponse(BaseModel):
     asn: Optional[int] = None
     organization: Optional[str] = None
     network: Optional[str] = None
+    error: Optional[ErrorResponse] = None
