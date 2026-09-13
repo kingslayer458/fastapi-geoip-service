@@ -15,6 +15,7 @@ services:
       - maxmind.env
     environment:
       GEOIPUPDATE_FREQUENCY: 0
+      GEOIPUPDATE_VERBOSE: 1
     volumes:
       - ./geoip_database:/usr/share/GeoIP
     command: ["geoipupdate"]
