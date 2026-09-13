@@ -113,3 +113,9 @@ traceroute to example.com
 2  8.8.8.8
 3  1.1.1.1
 ```
+
+firewall outbound rules for maxmind update service:
+
+mm-prod-geoip-databases.a2649acb697e2c09b632799562c076f2.r2.cloudflarestorage.com
+status.maxmind.com
+updates.maxmind.com
