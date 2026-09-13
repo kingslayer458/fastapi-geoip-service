@@ -4,8 +4,6 @@ A lightweight FastAPI microservice for resolving IP addresses into GeoIP and ASN
 
 The service exposes simple endpoints for single IP lookups, bulk lookups, and traceroute parsing. It is designed for fast internal use, diagnostics, and automation around IP intelligence.
 
-It uses GeoLite Country as a fallback when GeoLite City does not have a precise location record for an IP.
-
 ## What It Does
 
 - Looks up GeoIP data for a single IP address
@@ -40,6 +38,21 @@ It uses GeoLite Country as a fallback when GeoLite City does not have a precise 
 pip install -r requirements.txt
 ```
 
+## MaxMind Update Configuration
+
+The `geoipupdate` service uses `maxmind.env`.
+
+Example values:
+
+```env
+GEOIPUPDATE_ACCOUNT_ID=your_account_id
+GEOIPUPDATE_LICENSE_KEY=your_license_key
+GEOIPUPDATE_EDITION_IDS=GeoLite2-Country GeoLite2-City GeoLite2-ASN
+GEOIPUPDATE_FREQUENCY=9
+```
+
+Copy `maxmind.env.example` to `maxmind.env` and fill in your credentials.
+
 3. Make sure the GeoLite2 databases exist in `geoip_database/`:
 
 - `GeoLite2-City.mmdb`
@@ -72,20 +85,6 @@ The compose file mounts `geoip_database/` into the containers so the database fi
 
 For local Python development, the one-time `geoipupdate-init` service is the easiest way to populate `geoip_database/` before you run `python -m uvicorn ...`.
 
-## MaxMind Update Configuration
-
-The `geoipupdate` service uses `maxmind.env`.
-
-Example values:
-
-```env
-GEOIPUPDATE_ACCOUNT_ID=your_account_id
-GEOIPUPDATE_LICENSE_KEY=your_license_key
-GEOIPUPDATE_EDITION_IDS=GeoLite2-Country GeoLite2-City GeoLite2-ASN
-GEOIPUPDATE_FREQUENCY=9
-```
-
-Copy `maxmind.env.example` to `maxmind.env` and fill in your credentials.
 
 ## Example Requests
 
