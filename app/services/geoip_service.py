@@ -22,8 +22,7 @@ class GeoIPService:
 
     def reserved_ip_response(self, ip: str):
         return {
-            "ip": ip,
-            "error": f"The IP address '{ip}' is a reserved IP address",
+            "message": f"The IP address '{ip}' is a reserved IP address",
         }
 
     def get_asn(self, ip: str):
