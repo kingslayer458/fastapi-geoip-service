@@ -27,7 +27,7 @@ pip install -r requirements.txt
 
 ## MaxMind Update Configuration
 
-The `geoipupdate` service uses `maxmind.env`.
+The `geoipupdate` service uses `.env`.
 
 Example values:
 
@@ -38,7 +38,7 @@ GEOIPUPDATE_EDITION_IDS=GeoLite2-Country GeoLite2-City GeoLite2-ASN
 GEOIPUPDATE_FREQUENCY=9
 ```
 
-Copy `maxmind.env.example` to `maxmind.env` and fill in your credentials.
+Copy `.env.example` to `.env` and fill in your credentials.
 
 3. Make sure the GeoLite2 databases exist in `geoip_database/`:
 
@@ -69,6 +69,45 @@ docker compose up --build
 ```
 
 The compose file mounts `geoip_database/` into the containers so the database files are available to the API.
+
+## GeoIP Update Email Alerts
+
+Docker Compose can also start a `geoipupdate-alert` watchdog service. It checks the mounted MaxMind database files and sends an HTML email if any expected database is missing or older than `GEOIP_ALERT_MAX_AGE_HOURS`. It also sends a healthy status email on the first successful check and then once per `GEOIP_HEALTHY_EMAIL_INTERVAL_SECONDS`.
+
+The alert service is disabled by default. Enable it with the `alerts` profile:
+
+```bash
+docker compose --profile alerts up --build
+```
+
+Or put this in your local `.env` file:
+
+```env
+COMPOSE_PROFILES=alerts
+```
+
+To disable email alerts again, remove `COMPOSE_PROFILES=alerts` from `.env` or run Compose without `--profile alerts`.
+
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your_email@gmail.com
+SMTP_PASSWORD=your_app_password
+SMTP_FROM=your_email@gmail.com
+SMTP_TO=alerts@example.com
+SMTP_USE_TLS=true
+```
+
+Add those SMTP settings to `.env`, since the alert service reads the same env file as the GeoIP updater.
+
+The alert threshold is configured in `docker-compose.yml`:
+
+```yaml
+GEOIP_ALERT_MAX_AGE_HOURS: 48
+GEOIP_ALERT_CHECK_INTERVAL_SECONDS: 3600
+GEOIP_ALERT_RESEND_INTERVAL_SECONDS: 21600
+GEOIP_HEALTHY_EMAIL_INTERVAL_SECONDS: 86400
+```
 
 
 ## Example Requests
