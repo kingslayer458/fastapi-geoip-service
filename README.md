@@ -72,7 +72,7 @@ The compose file mounts `geoip_database/` into the containers so the database fi
 
 ## GeoIP Update Email Alerts
 
-Docker Compose can also start a `geoipupdate-alert` watchdog service. It checks the mounted MaxMind database files and sends an HTML email if any expected database is missing or older than `GEOIP_ALERT_MAX_AGE_HOURS`. It also sends a healthy status email on the first successful check and then once per `GEOIP_HEALTHY_EMAIL_INTERVAL_SECONDS`.
+Docker Compose can also start a `geoipupdate-alert` watchdog service. It checks the mounted MaxMind database files and sends an HTML email if any expected database is missing or older than `GEOIP_ALERT_MAX_AGE_HOURS`.
 
 The alert service is disabled by default. Enable it with the `alerts` profile:
 
@@ -106,7 +106,6 @@ The alert threshold is configured in `docker-compose.yml`:
 GEOIP_ALERT_MAX_AGE_HOURS: 48
 GEOIP_ALERT_CHECK_INTERVAL_SECONDS: 3600
 GEOIP_ALERT_RESEND_INTERVAL_SECONDS: 21600
-GEOIP_HEALTHY_EMAIL_INTERVAL_SECONDS: 86400
 ```
 
 
