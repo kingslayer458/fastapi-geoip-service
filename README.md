@@ -57,7 +57,7 @@ Note: the GeoLite databases are downloaded from `https://updates.maxmind.com`.
 4. Start the app from the `app` directory:
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn main:app --reload --host 0.0.0.0 --port 8004
 ```
 
 ## Docker Setup
