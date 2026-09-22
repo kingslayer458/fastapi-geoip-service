@@ -57,10 +57,13 @@ pipeline {
                     git reset --hard origin/main
 
                     echo "Stopping existing containers..."
-                    docker compose down
+                    docker compose down -v 
 
                     echo "Building and starting containers..."
                     docker compose up -d --build
+
+                    echo "Removing completed init container..."
+                    docker compose rm -f geoipupdate-init
 
                     echo " Container status:"
                     docker compose ps
