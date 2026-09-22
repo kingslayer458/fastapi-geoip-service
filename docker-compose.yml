@@ -42,7 +42,6 @@ services:
       GEOIP_ALERT_MAX_AGE_HOURS: 48
       GEOIP_ALERT_CHECK_INTERVAL_SECONDS: 3600
       GEOIP_ALERT_RESEND_INTERVAL_SECONDS: 21600
-      GEOIP_HEALTHY_EMAIL_INTERVAL_SECONDS: 86400
     volumes:
       - ./geoip_database:/usr/share/GeoIP:ro
       - ./app/utils/geoip_update_alert.py:/app/geoip_update_alert.py:ro
