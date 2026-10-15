@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.api.paths.root import API_V1
 from app.controllers.geo_ip_controller import create_geoip_controller
 from app.controllers.health_controller import router as health_router
@@ -48,6 +49,13 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 geoip_service = GeoIPService(repository)
 
