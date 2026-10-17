@@ -27,10 +27,7 @@ async def lifespan(app: FastAPI):
     missing_databases = repository.missing_databases()
 
     if missing_databases:
-        print(
-            "Warning: missing GeoLite database files: "
-            + ", ".join(missing_databases)
-        )
+        print( "Warning: missing GeoLite database files: " + ", ".join(missing_databases))
     else:
         print("All GeoLite database files are present")
 
@@ -51,7 +48,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        origin.strip()
+        for origin in settings.cors_origins.split(",")
+        if origin.strip()
+    ],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
