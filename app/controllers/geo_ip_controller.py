@@ -42,16 +42,9 @@ def create_geoip_controller(geoip_service: GeoIPService) -> APIRouter:
     def lookup_traceroute(traceroute_result: str = Body(..., media_type="text/plain")):
         try:
             ips = extract_ips_from_traceroute(traceroute_result)
-            results = []
-
-            for ip in ips:
-                results.append(geoip_service.get_geoip(ip))
-
-            return results
+            return geoip_service.lookup_bulk(ips)
         except ValueError as e:
             raise HTTPException(400, str(e))
-        except LookupError as e:
-            raise HTTPException(404, str(e))
         except LookupError as e:
             raise HTTPException(404, str(e))
 

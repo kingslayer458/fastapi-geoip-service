@@ -122,6 +122,24 @@ class GeoIPServiceTests(unittest.TestCase):
         self.assertEqual(body_field.field_info.metadata[0].min_length, 1)
         self.assertEqual(body_field.field_info.metadata[1].max_length, 500)
 
+    def test_traceroute_keeps_private_hops_as_bulk_errors(self) -> None:
+        self.repository.get_city.return_value = geoip_record("8.8.8.8")
+        self.repository.get_country.return_value = geoip_record("8.8.8.8")
+        self.repository.get_asn.return_value = None
+        controller = create_geoip_controller(self.service)
+        traceroute_route = next(
+            route for route in controller.routes if route.path == "/geoip/traceroute"
+        )
+
+        result = traceroute_route.endpoint(
+            "traceroute to example (192.168.1.1)\n 1 192.168.1.1\n 2 8.8.8.8"
+        )
+
+        self.assertEqual(result[0].ip, "192.168.1.1")
+        self.assertEqual(result[0].status, "unsupported")
+        self.assertIn("reserved IP address", result[0].error)
+        self.assertEqual(result[1].ip, "8.8.8.8")
+
 
 if __name__ == "__main__":
     unittest.main()
