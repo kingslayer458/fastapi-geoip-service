@@ -133,6 +133,13 @@ curl -X POST http://localhost:8000/geoip/bulk \
   -d '["8.8.8.8","1.1.1.1","9.9.9.9"]'
 ```
 
+The bulk endpoint is POST-only and accepts between 1 and 500 IP addresses per
+request. Each item is looked up independently and returned
+independently, so invalid,
+unsupported, and database-missing addresses do not discard successful results.
+Error items have an `ip`, a `status` (`invalid`, `unsupported`, `not_found`, or
+`error`), and a client-safe `error` message.
+
 ### Traceroute lookup
 
 Send traceroute output as plain text:

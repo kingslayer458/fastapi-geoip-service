@@ -68,7 +68,7 @@ class GeoIPRepository:
 
     def get_asn(self, ip: str):
         if not self.asn_reader:
-            raise RuntimeError("ASN database is not available")
+            return None
 
         try:
             return self.asn_reader.asn(ip)

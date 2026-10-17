@@ -1,10 +1,16 @@
 import ipaddress
+import logging
+from typing import Union
+
 from app.repositories.geoip_repo import GeoIPRepository
 from app.dto_schemas.geoip_schemas import (
     ASNResponse,
+    BulkGeoIPErrorResponse,
     CountryResponse,
     GeoIPResponse,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class GeoIPService:
@@ -12,7 +18,7 @@ class GeoIPService:
     def __init__(self, repository: GeoIPRepository):
         self.repository = repository
 
-    def validate_ip(self, ip: str):
+    def validate_ip(self, ip: str) -> ipaddress.IPv4Address | ipaddress.IPv6Address:
 
         try:
             return ipaddress.ip_address(ip)
@@ -25,11 +31,53 @@ class GeoIPService:
             "message": f"The IP address '{ip}' is a reserved IP address",
         }
 
+    @staticmethod
+    def is_unsupported(ip_obj: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
+        return ip_obj.is_multicast or not ip_obj.is_global
+
+    def lookup_bulk(
+        self, ips: list[str]
+    ) -> list[Union[GeoIPResponse, BulkGeoIPErrorResponse]]:
+        results: list[Union[GeoIPResponse, BulkGeoIPErrorResponse]] = []
+
+        for ip in ips:
+            try:
+                result = self.get_geoip(ip)
+                if isinstance(result, dict):
+                    result = BulkGeoIPErrorResponse(
+                        ip=ip,
+                        status="unsupported",
+                        error=result["message"],
+                    )
+            except ValueError as exc:
+                result = BulkGeoIPErrorResponse(
+                    ip=ip,
+                    status="invalid",
+                    error=str(exc),
+                )
+            except LookupError as exc:
+                result = BulkGeoIPErrorResponse(
+                    ip=ip,
+                    status="not_found",
+                    error=str(exc),
+                )
+            except Exception:
+                logger.exception("Unexpected error during GeoIP lookup for %s", ip)
+                result = BulkGeoIPErrorResponse(
+                    ip=ip,
+                    status="error",
+                    error="GeoIP lookup failed",
+                )
+
+            results.append(result)
+
+        return results
+
     def get_asn(self, ip: str):
 
         ip_obj = self.validate_ip(ip)
 
-        if not ip_obj.is_global:
+        if self.is_unsupported(ip_obj):
             return self.reserved_ip_response(ip)
 
         response = self.repository.get_asn(ip)
@@ -53,7 +101,7 @@ class GeoIPService:
 
         ip_obj = self.validate_ip(ip)
 
-        if not ip_obj.is_global:
+        if self.is_unsupported(ip_obj):
             return self.reserved_ip_response(ip)
 
         country = self.repository.get_country(ip)
@@ -72,7 +120,7 @@ class GeoIPService:
 
         ip_obj = self.validate_ip(ip)
 
-        if not ip_obj.is_global:
+        if self.is_unsupported(ip_obj):
             return self.reserved_ip_response(ip)
 
         city = self.repository.get_city(ip)
@@ -86,7 +134,13 @@ class GeoIPService:
             ip=ip,
             country=city.country.name if city else country.country.name if country else None,
             country_iso=city.country.iso_code if city else country.country.iso_code if country else None,
-            continent=city.continent.name if city else None,
+            continent=(
+                city.continent.name
+                if city
+                else country.continent.name
+                if country
+                else None
+            ),
             region=(city.subdivisions.most_specific.name if city else None ),
             city=city.city.name if city else None,
             postal_code=(city.postal.code if city else None),

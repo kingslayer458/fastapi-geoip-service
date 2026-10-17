@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 from pydantic import BaseModel
 
 
@@ -43,3 +43,9 @@ class GeoIPResponse(BaseModel):
     asn: Optional[int] = None
     organization: Optional[str] = None
     network: Optional[str] = None
+
+
+class BulkGeoIPErrorResponse(BaseModel):
+    ip: str
+    status: Literal["invalid", "unsupported", "not_found", "error"]
+    error: str
