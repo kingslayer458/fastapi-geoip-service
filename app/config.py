@@ -1,6 +1,8 @@
 from pathlib import Path
 from pydantic import field_validator
 from pydantic_settings import BaseSettings
+import logging
+logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -17,7 +19,7 @@ class Settings(BaseSettings):
     @classmethod
     def validate_cors_origins(cls, value: str) -> str:
         if not value.strip():
-            raise ValueError("CORS_ORIGINS must be configured")
+            logger.warning("WARNING: CORS_ORIGINS is Empty")
         return value
 
 

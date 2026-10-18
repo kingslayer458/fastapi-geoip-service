@@ -40,6 +40,8 @@ GEOIPUPDATE_FREQUENCY=9
 
 Copy `.env.example` to `.env` and fill in your credentials.
 
+`CORS_ORIGINS` is optional; configure it with comma-separated allowed origins if needed, otherwise the application logs a warning.
+
 3. Make sure the GeoLite2 databases exist in `geoip_database/`:
 
 - `GeoLite2-City.mmdb`
