@@ -41,7 +41,7 @@ services:
       - .env
     environment:
       GEOIP_DB_DIR: /usr/share/GeoIP
-      GEOIP_ALERT_MAX_AGE_HOURS: 48
+      GEOIP_ALERT_MAX_AGE_HOURS: 168
       GEOIP_ALERT_CHECK_INTERVAL_SECONDS: 3600
       GEOIP_ALERT_RESEND_INTERVAL_SECONDS: 21600
     volumes:
